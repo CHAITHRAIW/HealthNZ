@@ -1,16 +1,10 @@
 package org.example;
 
-import lombok.extern.log4j.Log4j2;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class RuleCounterToCSV {
@@ -55,9 +49,14 @@ public class RuleCounterToCSV {
     }
 
     private static void saveResultsToCSV(String csvFilePath, Map<String, Integer> ruleCounts) {
+        // Sort the map by values in descending order
+        List<Map.Entry<String, Integer>> sortedEntries = ruleCounts.entrySet()
+                .stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).toList();
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFilePath))) {
             writer.write("Rule Name,Count\n"); // CSV header
-            for (Map.Entry<String, Integer> entry : ruleCounts.entrySet()) {
+            for (Map.Entry<String, Integer> entry : sortedEntries) {
                 writer.write("\"" + entry.getKey() + "\"," + entry.getValue() + "\n");
             }
         } catch (IOException e) {
