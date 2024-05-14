@@ -12,19 +12,18 @@ Cleaning up Exited Containers
 Populating the Microservice Database
 Testing the Microservice
 
-Setup and Pre-requisites
 # HealthNZ
+## Summary
 
 This repository contains a Java application that connects to a PostgreSQL database and lists all table names within the `healthNZRules_schema` schema in the `healthnzrules` database.
 
-## Prerequisites
+## Setup and Pre-requisites
 
-Before you begin, ensure you have the following installed:
-- Java JDK 8 or higher
-- Docker
-- Maven (if managing dependencies through Maven)
+If not already installed:
+Install Docker on your device (you can use the following link for a guide: https://docs.docker.com/get-docker/)
+Install the latest version of OpenJDK 17 on your device (The following page has a complete catalogue of OpenJDK downloads: https://www.openlogic.com/openjdk-downloads)
+Clone this repository or download the .zip file from GitHub (extract the downloaded zip file )
 
-## Setup
 
 ### PostgreSQL Setup with Docker
 
@@ -32,34 +31,26 @@ Before you begin, ensure you have the following installed:
    ```bash
    docker pull postgres
 
-2.**Start PostgreSQL Container**
-docker run --name my-postgres-db -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -d postgres
+2. **Start PostgreSQL Container**
+docker run --name my-postgres-db -e POSTGRES_PASSWORD=mypassword -p 5432:5432 -d postgres
 
-3.**Access PostgreSQL Shell**
+3. **Access PostgreSQL Shell**
 docker exec -it my-postgres-db psql -U postgres
 
-4.**Create Database and Schema**
-CREATE DATABASE healthnzrules;
-\c healthnzrules
-CREATE SCHEMA healthNZRules_schema;
+### Running the Microservice
 
-5**Creating table DroolFiles**
-CREATE TABLE healthnzrules_schema.DroolFiles (
-    file_id SERIAL PRIMARY KEY,
-    file_name VARCHAR(255) NOT NULL
-);
+1. Using a Command Line Interface of your choosing, change directory to the downloaded/cloned repository
 
-6.**Creating table DroolRules**
-CREATE TABLE healthnzrules_schema.DroolRules (
-    rule_id SERIAL PRIMARY KEY,
-    rule_name VARCHAR(255) NOT NULL,
-    rule_content TEXT NOT NULL
-);
+2. Run the following command to build a .jar application file of the microservice:
 
-7.**Verify Table Creation**
-SELECT table_name FROM information_schema.tables WHERE table_schema = 'healthnzrules_schema';
+<# Linux/MacOs #>
+./mvnw clean package -DskipTests
 
+<# Windows #>
+.\mvnw clean package -DskipTests
 
+If the build is a success, it should be indicated in your CLI. If it is successful, run this command to deploy it:
+docker-compose up -d --build
 
 
 
