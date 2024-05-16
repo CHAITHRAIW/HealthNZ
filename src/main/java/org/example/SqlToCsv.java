@@ -25,9 +25,9 @@ public class SqlToCsv {
                 "DR.rule_content, " +
                 "COUNT(*) AS ExecutionCount " +
                 "FROM " +
-                "healthnzrules_schema.drool_rules AS DR " + // Updated table name to lowercase and added AS for clarity
+                "drool_rules AS DR " + // Updated table name to lowercase and added AS for clarity
                 "JOIN " +
-                "healthnzrules_schema.drool_files AS DF ON DR.file_id = DF.file_id " + // Updated table name to lowercase and added AS for clarity
+                "drool_files AS DF ON DR.file_id = DF.file_id " + // Updated table name to lowercase and added AS for clarity
                 "GROUP BY " +
                 "DR.rule_name, DR.rule_content, DF.file_name " +
                 "ORDER BY " +
