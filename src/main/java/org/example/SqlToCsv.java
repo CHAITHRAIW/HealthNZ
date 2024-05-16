@@ -13,7 +13,7 @@ import java.io.IOException;
 @Log4j2
 public class SqlToCsv {
     public static void main(String[] args) {
-        String jdbcUrl = "jdbc:postgresql://localhost:5432/postgres";
+        String jdbcUrl = "jdbc:postgresql://db:5432/postgres";
         String username = "postgres";
         String password = "mypassword";
         String filePath = "RuleExecutionCount.csv";

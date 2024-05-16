@@ -25,18 +25,6 @@ Install the latest version of OpenJDK 17 on your device (The following page has 
 Clone this repository or download the .zip file from GitHub (extract the downloaded zip file )
 
 
-### PostgreSQL Setup with Docker
-
-1. **Pull the PostgreSQL Image**
-   ```bash
-   docker pull postgres
-
-2. **Start PostgreSQL Container**
-docker run --name my-postgres-db -e POSTGRES_PASSWORD=mypassword -p 5432:5432 -d postgres
-
-3. **Access PostgreSQL Shell**
-docker exec -it my-postgres-db psql -U postgres
-
 ### Running the Microservice
 
 1. Using a Command Line Interface of your choosing, change directory to the downloaded/cloned repository
@@ -52,6 +40,9 @@ docker exec -it my-postgres-db psql -U postgres
 If the build is a success, it should be indicated in your CLI. If it is successful, run this command to deploy it:
 docker-compose up -d --build
 
+3. If the build is a success, it should be indicated in your CLI. If it is successful, run this command to deploy it:
+docker-compose up -d --build
 
-
+4. Three containers should be running which are 
+   db, pgadmin and microservice
 
