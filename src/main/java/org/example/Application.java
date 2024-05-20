@@ -1,24 +1,24 @@
 package org.example;
 
-import org.example.service.DroolService;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 @SpringBootApplication
-public class Application implements CommandLineRunner {
+public class Application {
 
-    @Autowired
-    private DroolService droolService;
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
-    @Override
-    public void run(String... args) throws Exception {
-        droolService.storeDroolFileAndRules();
+    @Bean
+    public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
+        return args -> {
+            InterpretDroolsFiles interpretDroolsFiles = ctx.getBean(InterpretDroolsFiles.class);
+            interpretDroolsFiles.start();
+        };
     }
 }

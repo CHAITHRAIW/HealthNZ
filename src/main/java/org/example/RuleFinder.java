@@ -1,3 +1,4 @@
+/*
 package org.example;
 
 import java.nio.file.Files;
@@ -15,12 +16,16 @@ public class RuleFinder {
     static String flowXmlFilePath = "src/main/resources/flowXmls";
     static String drlDirectoryPath = "src/main/resources/drls";
     public static void main(String[] args) {
-        /* Save the flow name and respective Drool file name */
+        */
+/* Save the flow name and respective Drool file name *//*
+
 
         String outputFilePath = "src/main/resources/DroolFileNameAndFlowName.txt";
         extractFlowNameAndRuleDefinition(flowXmlFilePath, outputFilePath);
 
-        /* Count the number of Occurrences of the Rules across the Drool files */
+        */
+/* Count the number of Occurrences of the Rules across the Drool files *//*
+
         String csvFilePath = "src/main/resources/RuleCounter.csv";
         Map<String, Integer> ruleCounts = countAllRuleOccurrences(drlDirectoryPath);
         saveResultsToCSV(csvFilePath, ruleCounts);
@@ -152,4 +157,4 @@ public class RuleFinder {
             e.printStackTrace();
         }
     }
-}
+}*/
