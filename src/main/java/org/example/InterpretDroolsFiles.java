@@ -1,14 +1,16 @@
 package org.example;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.utility.DroolFileInserter;
+import org.example.utility.DroolFileDAO;
 import org.example.utility.DroolRuleExtractor;
+import org.example.utility.DroolRulesDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -19,15 +21,17 @@ public class InterpretDroolsFiles {
 
     private final DroolRuleExtractor droolRuleExtractor;
 
-    private final DroolFileInserter droolFileInserter;
+    private final DroolFileDAO droolFileDao;
+    private final DroolRulesDAO droolRulesDAO;
     private static final long INITIAL_DELAY = 0L;
-    private static final long PERIOD = 100L; // Check every 100 seconds
+    private static final long PERIOD = 100L; // Check every 10 seconds
     private static final long MAX_RUNTIME = 60L; // Run for 1 minute
 
     @Autowired
-    public InterpretDroolsFiles(DroolRuleExtractor droolRuleExtractor, DroolFileInserter droolFileInserter) {
+    public InterpretDroolsFiles(DroolRuleExtractor droolRuleExtractor, DroolFileDAO DroolFileDao, DroolFileDAO droolFileDao, DroolRulesDAO droolRulesDAO) {
         this.droolRuleExtractor = droolRuleExtractor;
-        this.droolFileInserter = droolFileInserter;
+        this.droolFileDao = droolFileDao;
+        this.droolRulesDAO = droolRulesDAO;
     }
 
     public void start() {
@@ -65,8 +69,14 @@ public class InterpretDroolsFiles {
     private void processFile(File file) {
         log.info("Processing file: {}", file.getName());
         try {
-            droolRuleExtractor.extractRules(file.getAbsolutePath());
-            droolFileInserter.insertDroolFile(file.getName());
+            List<String[]> rules = droolRuleExtractor.extractRules(file.getAbsolutePath());
+            droolFileDao.insertDroolFile(file.getName());
+
+            // Retrieve the FileID of the inserted file
+            int fileId = droolFileDao.getFileIdByFileName(file.getName());
+
+            droolRulesDAO.insertDroolRule(fileId, rules);
+
             boolean isDeleted = Files.deleteIfExists(file.toPath());
             if (isDeleted) {
                 log.info("File deleted successfully: {}", file.getName());
