@@ -1,4 +1,4 @@
-package org.example.utility;
+package com.healthnz.utility;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
@@ -16,8 +16,9 @@ import java.util.ArrayList;
 @Component
 public class DroolRuleExtractor {
 
-    public List<String[]> extractRules(String filePath) throws IOException {
-        String content = new String(Files.readAllBytes(Paths.get(filePath)));
+    public List<String[]> extractRules(String fullFilePath) throws IOException {
+
+        String content = new String(Files.readAllBytes(Paths.get("C:\\Temp\\Drools\\Rules")), "UTF-8");
         List<String[]> rules = new ArrayList<>();
 
         // Regex to extract rule name and content
@@ -29,7 +30,14 @@ public class DroolRuleExtractor {
             String ruleContent = matcher.group(2).trim();
             rules.add(new String[]{ruleName, ruleContent});
         }
-        log.info("Rules from {} {} is: ",  rules , filePath);
+
+        // Log the extracted rules and the file path
+        if (!rules.isEmpty()) {
+            log.info("Extracted {} rules from file: {}", rules.size(), fullFilePath);
+            rules.forEach(rule -> log.info("Rule Name: {}, Rule Content: {}", rule[0], rule[1]));
+        } else {
+            log.info("No rules extracted from file: {}", fullFilePath);
+        }
 
         return rules;
     }
