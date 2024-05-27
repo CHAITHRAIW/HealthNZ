@@ -15,20 +15,11 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-    /**
-     * CommandLineRunner bean to start the RuleMonitor and DroolsProcessor services.
-     *
-     * @param ctx the Spring application context
-     * @return a CommandLineRunner
-     */
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
         return args -> {
             RuleMonitor ruleMonitor = ctx.getBean(RuleMonitor.class);
             ruleMonitor.start();
-
-            DroolsProcessor droolsProcessor = ctx.getBean(DroolsProcessor.class);
-            droolsProcessor.start();
         };
     }
 }

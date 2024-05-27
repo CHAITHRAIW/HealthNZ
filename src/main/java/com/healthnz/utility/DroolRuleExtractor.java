@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
@@ -18,7 +19,7 @@ public class DroolRuleExtractor {
 
     public List<String[]> extractRules(String fullFilePath) throws IOException {
 
-        String content = new String(Files.readAllBytes(Paths.get("C:\\Temp\\Drools\\Rules")), "UTF-8");
+        String content = Files.readString(Paths.get(fullFilePath));
         List<String[]> rules = new ArrayList<>();
 
         // Regex to extract rule name and content

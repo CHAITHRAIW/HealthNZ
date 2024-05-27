@@ -16,7 +16,7 @@ public class DroolFileDAO extends BaseDAO {
      * @param flowFileName the name of the flow file
      * @param drlFileName  the name of the DRL file
      */
-    public void insertDroolFile(String flowFileName, String drlFileName) {
+    public void insertDroolFile(String drlFileName , String flowFileName) {
         String sql = "INSERT INTO drool_files (\"filename\", \"xmlfilename\") VALUES (?, ?)";
 
         try (Connection conn = getConnection();

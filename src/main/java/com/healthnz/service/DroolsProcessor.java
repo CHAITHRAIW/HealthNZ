@@ -11,10 +11,8 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -23,70 +21,54 @@ public class DroolsProcessor {
     private final DroolFileDAO droolFileDao;
     private final DroolRulesDAO droolRulesDAO;
     private final MuleFlowDAO muleFlowDAO;
-    private static final long INITIAL_DELAY = 0L;
-    private static final long PERIOD = 100L; // Check every 100 seconds
-    private static final long MAX_RUNTIME = 60L; // Run for 1 minute
 
-    @Value("${drools.rules.directory}")
+    @Value("${drools.rules.directory:C:\\Temp\\Drools\\Rules}")
     private String rulesDirectoryPath;
 
-    private final ScheduledExecutorService executor;
+    private final List<DroolFileDetail> droolFilesToProcess = new ArrayList<>();
 
     public DroolsProcessor(DroolRuleExtractor droolRuleExtractor, DroolFileDAO droolFileDao, DroolRulesDAO droolRulesDAO, MuleFlowDAO muleFlowDAO) {
         this.droolRuleExtractor = droolRuleExtractor;
         this.droolFileDao = droolFileDao;
         this.droolRulesDAO = droolRulesDAO;
         this.muleFlowDAO = muleFlowDAO;
-        this.executor = Executors.newSingleThreadScheduledExecutor();
     }
 
     public void start() {
-        Runnable task = () -> checkDirectory(rulesDirectoryPath);
-
-        executor.scheduleAtFixedRate(task, INITIAL_DELAY, PERIOD, TimeUnit.SECONDS);
-        executor.schedule(this::shutdown, MAX_RUNTIME, TimeUnit.SECONDS);
+        processQueuedDroolFiles();
     }
 
-    private void shutdown() {
-        log.info("Executor service shutting down.");
-        executor.shutdownNow();
+    public void addFileToProcess(DroolFileDetail droolFileDetail) {
+        droolFilesToProcess.add(droolFileDetail);
+        log.info("Added file to process queue: {} from XML: {}", droolFileDetail.getDroolFile().getAbsolutePath(), droolFileDetail.getXmlFileName());
     }
 
-    private void checkDirectory(String directoryPath) {
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(directoryPath), "*.drl")) {
-            for (Path entry : stream) {
-                processDroolFile(entry.toFile(), entry.getFileName().toString());
-            }
-        } catch (IOException e) {
-            log.error("Error processing directory: {}", directoryPath, e);
+    private void processQueuedDroolFiles() {
+        for (DroolFileDetail droolFileDetail : droolFilesToProcess) {
+            processDroolFile(droolFileDetail);
         }
     }
 
-    public void processDroolFile(File droolFile, String xmlFileName) {
-        log.info("Processing DRL file: {}", droolFile.getName());
+    public void processDroolFile(DroolFileDetail droolFileDetail) {
+        File droolFile = droolFileDetail.getDroolFile();
+        String xmlFileName = droolFileDetail.getXmlFileName();
         try {
-            if (muleFlowDAO.xmlFileNameExists(xmlFileName)) {
-                List<String[]> rules = droolRuleExtractor.extractRules(droolFile.getAbsolutePath());
+            String absolutePath = droolFile.getAbsolutePath();
+            log.info("Drool file path before processing: {}", absolutePath);
+
+          /*  if (muleFlowDAO.xmlFileNameExists(xmlFileName)) {*/
+                log.info("Processing DRL file: {}", droolFile.getName());
+                List<String[]> rules = droolRuleExtractor.extractRules(absolutePath);
                 droolFileDao.insertDroolFile(droolFile.getName(), xmlFileName);
 
                 int fileId = droolFileDao.getFileIdByFileName(droolFile.getName());
+                log.debug("File ID retrieved: {}", fileId);
                 droolRulesDAO.insertDroolRule(fileId, rules);
-
-              /* boolean isDeleted = Files.deleteIfExists(droolFile.toPath());
-                if (isDeleted) {
-                    log.info("DRL file deleted successfully: {}", droolFile.getName());
-                } else {
-                    log.info("No need to delete DRL file or file deletion failed: {}", droolFile.getName());
-                }*/
-            } else {
-              /*  log.warn("Referenced XML file not found in mule_flow: {}", xmlFileName);
-                boolean isDeleted = Files.deleteIfExists(droolFile.toPath());
-                if (isDeleted) {
-                    log.info("DRL file deleted successfully: {}", droolFile.getName());
-                }*/
-            }
+          /*  } else {
+                log.warn("Referenced XML file not found in mule_flow: {}", xmlFileName);
+            }*/
         } catch (IOException e) {
-            log.error("Error processing Drool file: {}", droolFile.getName(), e);
+            log.error("Error processing Drool file: {}", droolFile.getAbsolutePath(), e);
         }
     }
 }
